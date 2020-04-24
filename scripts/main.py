@@ -179,7 +179,7 @@ def plot_map(arguments):
 	mymap = folium.Map(location=[y_map, x_map], zoom_start=4,tiles=None)
 	folium.TileLayer('CartoDB positron',name="Light Map",control=False).add_to(mymap)
 	myscale = (merged[category].quantile((0,0.1,0.75,0.9,0.98,1))).tolist()
-	mymap.choropleth(
+	folium.Choropleth(
 	 geo_data=merged,
 	 name='choropleth',
 	 data=merged,
@@ -191,7 +191,7 @@ def plot_map(arguments):
 	 line_opacity=0.2,
 	 legend_name='Number of cases',
 	 smooth_factor=0
-	)
+	).add_to(mymap)
 	style_function = lambda x: {'fillColor': '#ffffff', 
                             'color':'#000000', 
                             'fillOpacity': 0.1, 
