@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>COVID-19 Dashboard</title>
+  <!-- plugins:css -->
+  <link rel="stylesheet" href="/static/css/vendor.bundle.base.css">
+  <!-- endinject -->
+  <!-- inject:css -->
+  <link rel="stylesheet" href="/static/css/style.css">
+  <!-- endinject -->
+  <link rel="shortcut icon" href="/static/image/favicon.png" />
+  <script src="https://cdn.bokeh.org/bokeh/release/bokeh-2.0.1.min.js"
+        crossorigin="anonymous"></script>
+  <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-2.0.1.min.js"
+        crossorigin="anonymous"></script>
+  <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-2.0.1.min.js"
+        crossorigin="anonymous"></script>
+
+  <style>
+    div.note {
+      padding-top: 100px;
+  </style>
+
+</head>
+
+<body>
+  <div class="container-scroller">
+    <!-- partial:../../partials/_navbar.html -->
+    <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+      <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
+        <a class="navbar-brand brand-logo mr-5" href="{{ url_for('charts') }}"><img src="/static/image/logo.svg" class="mr-2" alt="logo"/></a>
+        <a class="navbar-brand brand-logo-mini" href="{{ url_for('charts') }}"><img src="/static/image/logo-mini.svg" alt="logo"/></a>
+      </div>
+      <div class="navbar-menu-wrapper d-flex align-items-center">
+        <H1><CENTER>The COVID-19 Daily</CENTER></H1>
+        <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
+          <span class="ti-view-list"></span>
+        </button>
+      </div>
+    </nav>
+    <!-- partial -->
+    <div class="container-fluid page-body-wrapper">
+      <!-- partial:../../partials/_sidebar.html -->
+      <nav class="sidebar sidebar-offcanvas" id="sidebar">
+        <ul class="nav">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('charts') }}">
+              <i class="ti-pie-chart menu-icon"></i>
+              <span class="menu-title" style="color:white">Charts</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('tables') }}">
+              <i class="ti-view-list-alt menu-icon"></i>
+              <span class="menu-title" style="color:white">COVID-19 Statewise Status</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+      <!-- partial -->
+      <div class="main-panel">
+        <div class="content-wrapper">
+          <div class="row">
+            <div class="col-lg-6 grid-margin stretch-card">
+              <div class="card">
+                <div class="card-body">
+                  <h4 class="card-title" style="color:#c38fff"><b>Number of Confirmed Cases Per State</b></h4>
+                  <CENTER>
+                    {{ div_bar|safe }}
+                    {{ script_bar|safe }}
+                  </CENTER>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-6 grid-margin stretch-card">
+              <div class="card">
+                <div class="card-body">
+                  <h4 class="card-title" style="color:#c38fff"><b>Statewise Percentage of Confirmed Cases</b></h4>
+                    <CENTER>
+                    {{ div_pie|safe }}
+                    {{ script_pie|safe }}
+                    </CENTER>
+                    <div style="color:white" class="note"><b>NOTE : </b>Hover over the pie chart to get more details</div>
+                  <canvas id="pieChart"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-lg-6 grid-margin stretch-card">
+              <div class="card">
+                <div class="card-body">
+                  <h4 class="card-title" style="color:#c38fff"><b>COVID-19 confirmed cases per state</b></h4>
+                    {{ confirmed|safe }}
+                    <div style="color:white" class="note"><b>NOTE : </b>Hover over the map to get more details</div>
+                  <canvas id="cases_map"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-lg-6 grid-margin stretch-card">
+              <div class="card">
+                <div class="card-body">
+                  <h4 class="card-title" style="color:#c38fff"><b>COVID-19 deaths per state</b></h4>
+                    {{ death_map|safe }}
+                    <div style="color:white" class="note"><b>NOTE : </b>Hover over the map to get more details</div>
+                  <canvas id="cases_map"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-lg-6 grid-margin grid-margin-lg-0 stretch-card">
+              <div class="card">
+                <div class="card-body">
+                  <h4 class="card-title" style="color:#c38fff"><b>COVID-19 percentage cured per state</b></h4>
+                    {{ cured_map|safe }}
+                    <div style="color:white" class="note"><b>NOTE : </b>Hover over the map to get more details</div>
+                  <canvas id="cases_map"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <footer class="footer">
+            <div class="d-sm-flex justify-content-center justify-content-sm-between">
+              <span class="text-muted text-center text-sm-left d-block d-sm-inline-block"><h6 style="color:white">You can view/contribute to the source code on   <a href="https://github.com/sashreek1/The_COVID-19_Daily"><img src="/static/image/ghlogo.png" style="width:70px"></a></h6></span>
+            <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center" style="color:white"><a href="https://www.mohfw.gov.in/">Data source</a></span>
+          </div>
+        </footer>
+      </div>
+      <!-- main-panel ends -->
+    </div>
+    <!-- page-body-wrapper ends -->
+  </div>
+</body>
+
+</html>

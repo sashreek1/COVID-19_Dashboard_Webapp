@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>COVID-19 Dashboard</title>
+  <!-- plugins:css -->
+  <link rel="stylesheet" href="/static/css/vendor.bundle.base.css">
+  <!-- endinject -->
+  <!-- inject:css -->
+  <link rel="stylesheet" href="/static/css/style.css">
+  <!-- endinject -->
+  <link rel="shortcut icon" href="/static/image/favicon.png" />
+</head>
+
+<body>
+  <div class="container-scroller">
+    <!-- partial:../../partials/_navbar.html -->
+    <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
+      <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
+        <a class="navbar-brand brand-logo mr-5" href="{{ url_for('charts') }}"><img src="/static/image/logo.svg" class="mr-2" alt="logo"/></a>
+        <a class="navbar-brand brand-logo-mini" href="{{ url_for('charts') }}"><img src="/static/image/logo-mini.svg" alt="logo"/></a>
+      </div>
+      <div class="navbar-menu-wrapper d-flex align-items-center">
+        <H1><CENTER>The COVID-19 Daily</CENTER></H1>
+        <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
+          <span class="ti-view-list"></span>
+        </button>
+      </div>
+    </nav>
+    <!-- partial -->
+    <div class="container-fluid page-body-wrapper">
+      <!-- partial:../../partials/_sidebar.html -->
+      <nav class="sidebar sidebar-offcanvas" id="sidebar">
+        <ul class="nav">
+          
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('charts') }}">
+              <i class="ti-pie-chart menu-icon"></i>
+              <span class="menu-title" style="color:white">Charts</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('tables') }}">
+              <i class="ti-view-list-alt menu-icon"></i>
+              <span class="menu-title" style="color:white">COVID-19 Statewise Status</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+      <!-- partial -->
+      <div class="main-panel">
+        <div class="content-wrapper">
+          <div class="row">
+            <div class="col-lg-12 grid-margin stretch-card">
+              <div class="card">
+                <div class="card-body">
+                  <h4 class="card-title" style="color:#bb86fc">State-wise data for COVID-19 infections</h4>
+                    <div style="text-align:right">
+                      <p style="color:white">
+                      <svg width="20" height="20">
+                      <rect width="20" height="20" style="fill:#FFA500;stroke-width:3;stroke:rgb(0,0,0)" />
+                      </svg> Active cases
+                      <svg width="20" height="20">
+                      <rect width="20" height="20" style="fill:#32CD32;stroke-width:3;stroke:rgb(0,0,0)" />
+                      </svg> Recovered
+                      <svg width="20" height="20">
+                      <rect width="20" height="20" style="fill:#FF0000;stroke-width:3;stroke:rgb(0,0,0)" />
+                      </svg> Deaths</p>
+                    </div>
+                  <div class="table-responsive">
+                    <table class="table table-striped">
+                      <thead>
+                        <tr>
+                          <th style="color:white">
+                            State Name
+                          </th>
+                          <th style="color:white">
+                            Progress
+                          </th>
+                          <th style="color:white">
+                            Total-Cases
+                          </th>
+                          <th style="color:white">
+                            Cured
+                          </th>
+                          <th style="color:white">
+                            Deaths
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {% for i in range(len) %}
+                        <tr>
+                          <td style="color:white">
+                            {{objects[i]}}
+                          </td>
+                          <td width="60%">
+                            <div class="progress">
+                              <div class="progress-bar bg-warning" role="progressbar" style="width:{{((performance[i]-cured[i]-death[i])/prog_limit)*100}}%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                              </div> 
+                              <div class="progress-bar bg-success" role="progressbar" style="width:{{(cured[i]/prog_limit)*100}}%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                              </div> 
+                              <div class="progress-bar bg-danger" role="progressbar" style="width:{{(death[i]/prog_limit)*100}}%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                              </div> 
+                            </div>
+                          </td>
+                          <td style="color:white"><b>
+                            {{performance[i]}}
+                          </b></td>
+                          <td style="color:white">
+                            <b>
+                            {{cured[i]}}
+                            </b>
+                          </td>
+                          <td style="color:white">
+                            <b>
+                            {{death[i]}}
+                            </b>
+                          </td>
+                        </tr>
+                        {% endfor %}
+                        <tr>
+                          <td style="color:white">
+                            <b>
+                              Total Cases
+                            </b>
+                          </td>
+                          <td>
+                          </td>
+                          <td style="color:white">
+                            <b>
+                              {{total}}
+                            </b>
+                          </td>
+                          <td style="color:white">
+                            <b>
+                              {{cured[-1]}}
+                            </b>
+                          </td>
+                          <td style="color:white">
+                            <b>
+                              {{death[-1]}}
+                            </b>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+            <footer class="footer">
+            <div class="d-sm-flex justify-content-center justify-content-sm-between">
+              <span class="text-muted text-center text-sm-left d-block d-sm-inline-block"><h6  style="color:white">You can view/contribute to the source code on  <a href="https://github.com/sashreek1/The_COVID-19_Daily"><img src="/static/image/ghlogo.png" style="width:70px"></a></h6></span>
+            <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center" style="color:white"><a href="https://www.mohfw.gov.in/">Data source</a></span>
+          </div>
+        </footer>
+        <!-- content-wrapper ends -->
+        <!-- partial:../../partials/_footer.html -->
+        <!-- partial -->
+      </div>
+      <!-- main-panel ends -->
+    </div>
+    <!-- page-body-wrapper ends -->
+  </div>
+</body>
+
+</html>
