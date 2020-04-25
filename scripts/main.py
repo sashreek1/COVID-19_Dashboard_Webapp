@@ -218,7 +218,7 @@ def plot_map(arguments):
 	return confirmed_map
 
 def main1():
-	p = Pool(processes=4)
+	p = Pool()
 	arguments_passed = [['YlOrRd','Total_Confirmed'],['YlGnBu','percentage_cured'],['OrRd','Death']]
 	maps = p.map(plot_map,arguments_passed)
 	return maps
