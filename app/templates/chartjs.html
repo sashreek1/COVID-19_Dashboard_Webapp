@@ -70,8 +70,8 @@
                 <div class="card-body">
                   <h4 class="card-title" style="color:#c38fff"><b>Number of Confirmed Cases Per State</b></h4>
                   <CENTER>
-                    {{ div_bar|safe }}
-                    {{ script_bar|safe }}
+                    {% include 'bar_script.html' %}
+                    {% include 'bar_div.html' %}
                   </CENTER>
                 </div>
               </div>
@@ -82,8 +82,8 @@
                 <div class="card-body">
                   <h4 class="card-title" style="color:#c38fff"><b>Statewise Percentage of Confirmed Cases</b></h4>
                     <CENTER>
-                    {{ div_pie|safe }}
-                    {{ script_pie|safe }}
+                    {% include 'pie_script.html' %}
+                    {% include 'pie_div.html' %}
                     </CENTER>
                     <div style="color:white" class="note"><b>NOTE : </b>Hover over the pie chart to get more details</div>
                   <canvas id="pieChart"></canvas>
@@ -97,7 +97,7 @@
               <div class="card">
                 <div class="card-body">
                   <h4 class="card-title" style="color:#c38fff"><b>COVID-19 confirmed cases per state</b></h4>
-                    {{ confirmed|safe }}
+                    {% include 'Total_Confirmed.html' %}
                     <div style="color:white" class="note"><b>NOTE : </b>Hover over the map to get more details</div>
                   <canvas id="cases_map"></canvas>
                 </div>
@@ -108,7 +108,7 @@
               <div class="card">
                 <div class="card-body">
                   <h4 class="card-title" style="color:#c38fff"><b>COVID-19 deaths per state</b></h4>
-                    {{ death_map|safe }}
+                    {% include 'Death.html' %}
                     <div style="color:white" class="note"><b>NOTE : </b>Hover over the map to get more details</div>
                   <canvas id="cases_map"></canvas>
                 </div>
@@ -121,7 +121,7 @@
               <div class="card">
                 <div class="card-body">
                   <h4 class="card-title" style="color:#c38fff"><b>COVID-19 percentage cured per state</b></h4>
-                    {{ cured_map|safe }}
+                    {% include 'percentage_cured.html' %}
                     <div style="color:white" class="note"><b>NOTE : </b>Hover over the map to get more details</div>
                   <canvas id="cases_map"></canvas>
                 </div>

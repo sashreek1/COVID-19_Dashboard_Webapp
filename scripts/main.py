@@ -13,18 +13,19 @@ import folium
 import branca.colormap as cm
 import threading
 from multiprocessing import Pool
-
+from bokeh.embed import components
+from apscheduler.schedulers.background import BackgroundScheduler
 
 
 extract_contents = lambda row: [x.text.replace('\n', '') for x in row] 
 site = 'https://www.mohfw.gov.in/'
 df_data = None
-SHORT_HEADERS = ['SNo', 'State','Total_Confirmed','Cured','Death'] 
-
+SHORT_HEADERS = ['SNo', 'State', 'Total_Confirmed', 'Cured', 'Death'] 
 
 ########################## Get data from ministry of health #####################################
-def main():
+def get_data():
 
+	df_data = pd.read_pickle("df_data.pkl")
 	response = requests.get(site).content
 	soup = BeautifulSoup(response, 'html.parser') 
 	header = extract_contents(soup.tr.find_all('th')) 
@@ -52,8 +53,9 @@ def main():
 	objects = [] 
 	for row in stats : 
 		objects.append(row[1]) 
-		row[2]=row[2].strip("#")
+		row[2]=(row[2].strip("#")).strip("*")
 
+	
 	y_pos = np.arange(len(objects)-1) 
 
 	data = stats[0:-1]
@@ -80,83 +82,97 @@ def main():
 	df_2 = pd.DataFrame(state_list.stats_edit, columns=column_names)
 
 
-	global df_data
-	df_data = pd.merge(left=df_2, right=df_1, how='left', left_on='State-def', right_on='State')
+	df_data = pd.merge(left=df_2, right=df_1, how='left', left_on='State_def', right_on='State')
 
+	net_results = []
+	net_results.append(int((stats[-1][2].strip("#")).strip("*")))
+	net_results.append(int((stats[-1][3].strip("#")).strip("*")))
+	net_results.append(int((stats[-1][4].strip("#")).strip("*")))
 
-	################################## Print Table ######################################
-	cured_list = []
-	deaths_list = []
-	sl_no = []
-	for i in stats:
-		cured_list.append(i[3])
-		deaths_list.append(i[4])
-		sl_no.append(i[0])
+	df_data = df_data.append({'State' : 'Total Cases' , 'Total_Confirmed' : net_results[0],'Cured' : net_results[1],'Death' : net_results[2]}, ignore_index=True)
+
+	df_data.to_pickle("df_data.pkl")
 
 	################################### Plot bar chart ##################################
-	objects = objects[:-1]
-	total = performance[-1]
-	performance = performance[:-1]
-	def plot_bar():
-		b = figure(
-	  	y_range=objects,
-	  	title = '',
-	  	x_axis_label ='Cases',
-	  	plot_width=600,
-	  	plot_height=700,
-	  	tools="pan,box_select,zoom_in,zoom_out,save,reset")
-		b.hbar(y=objects,
-	    right=performance,
-	    left=0,
-	    height=0.4,
-	    color='red',
-	    fill_alpha=0.5,
-	    )
-		b.yaxis.major_label_text_color = "white"
-		b.xaxis.major_label_text_color = "white"
-		b.background_fill_color = "#1c1c1c"
-		b.border_fill_color = "#1c1c1c"
-		b.xgrid.visible = False
-		b.ygrid.visible = False
 
-		return b
+def plot_bar():
+	df_data = pd.read_pickle("df_data.pkl")
+	b = figure(
+  	y_range=df_data["State"].dropna().tolist(),
+  	title = '',
+  	x_axis_label ='Cases',
+  	plot_width=600,
+  	plot_height=700,
+  	tools="pan,box_select,zoom_in,zoom_out,save,reset")
+	b.hbar(y=df_data["State"].dropna().tolist(),
+    right=df_data["Total_Confirmed"].dropna().tolist(),
+    left=0,
+    height=0.4,
+    color='red',
+    fill_alpha=0.5,
+    )
+	b.yaxis.major_label_text_color = "white"
+	b.xaxis.major_label_text_color = "white"
+	b.background_fill_color = "#1c1c1c"
+	b.border_fill_color = "#1c1c1c"
+	b.xgrid.visible = False
+	b.ygrid.visible = False
 
+	script_bar, div_bar = components(b)
+
+	f = open("app/templates/bar_div.html", "w")
+	f.write(div_bar)
+	f.close()
+	
+	f = open("app/templates/bar_script.html", "w")
+	f.write(script_bar)
+	f.close()
 	
 	 
 	############################### Plot pie chart ####################################### 
-	def plot_pie():
-		x = {}
-		for i in range(len(objects)):
-			x[objects[i]] = performance[i]
-		data = pd.Series(x).reset_index(name='value').rename(columns={'index':'state'})
-		data['angle'] = data['value']/data['value'].sum() * 2*pi
-		data.insert (1,"percentage_of_cases", round((data['value']/data['value'].sum())*100,2))
-		c = Category20[20]
-		lst1 = []
-		for i in range(len(x)):
-			lst1.append(c[abs(i-19)])
-		data['color'] = tuple(lst1)
+def plot_pie():
+	x = {}
+	df_data = pd.read_pickle("df_data.pkl")
+	objects = df_data["State"].dropna().tolist()
+	performance = df_data["Total_Confirmed"].dropna().tolist()
+	for i in range(len(objects)):
+		x[objects[i]] = performance[i]
+	data = pd.Series(x).reset_index(name='value').rename(columns={'index':'state'})
+	data['angle'] = data['value']/data['value'].sum() * 2*pi
+	data.insert (1,"percentage_of_cases", round((data['value']/data['value'].sum())*100,2))
+	c = Category20[20]
+	lst1 = []
+	for i in range(len(x)):
+		lst1.append(c[abs(i-19)])
+	data['color'] = tuple(lst1)
 
-		pie = figure(plot_height=550,plot_width=620, title="",
-	           tools="hover,pan,box_select,zoom_in,zoom_out,save,reset", tooltips="@state: @percentage_of_cases%", x_range=(-0.5, 1.0))
+	pie = figure(plot_height=550,plot_width=620, title="",
+           tools="hover,pan,box_select,zoom_in,zoom_out,save,reset", tooltips="@state: @percentage_of_cases%", x_range=(-0.5, 1.0))
 
-		pie.wedge(x=0, y=1, radius=0.5,
-	        start_angle=cumsum('angle', include_zero=True), end_angle=cumsum('angle'),
-	        line_color="white", fill_color='color', source=data)
+	pie.wedge(x=0, y=1, radius=0.5,
+        start_angle=cumsum('angle', include_zero=True), end_angle=cumsum('angle'),
+        line_color="white", fill_color='color', source=data)
 
-		pie.axis.axis_label=None
-		pie.axis.visible=False
-		pie.grid.grid_line_color = None
-		pie.background_fill_color = "#1c1c1c"
-		pie.border_fill_color = "#1c1c1c"
-		return pie
+	pie.axis.axis_label=None
+	pie.axis.visible=False
+	pie.grid.grid_line_color = None
+	pie.background_fill_color = "#1c1c1c"
+	pie.border_fill_color = "#1c1c1c"
 
-	return performance, objects,cured_list,deaths_list,sl_no, plot_bar(), plot_pie(), total
+	script_pie, div_pie = components(pie)
+	
+	f = open("app/templates/pie_div.html", "w")
+	f.write(div_pie)
+	f.close()
+	
+	f = open("app/templates/pie_script.html", "w")
+	f.write(script_pie)
+	f.close()
 
 	######################### plot shape files ###########################################
 
 def setup_map():
-	global df_data
+	df_data = pd.read_pickle("df_data.pkl")
 	fp = "Igismap/Indian_States.shp"
 	map_df = gpd.read_file(fp)
 	map_df.insert (1,"state_name", map_df["st_nm"])
@@ -215,10 +231,23 @@ def plot_map(arguments):
 	mymap.keep_in_front(NIL)
 	folium.LayerControl().add_to(mymap)
 	confirmed_map = mymap._repr_html_()
-	return confirmed_map
+	
+	f = open("app/templates/"+category+".html", "w")
+	f.write(confirmed_map)
+	f.close()
 
-def main1():
+def plot_all_maps():
 	p = Pool()
 	arguments_passed = [['YlOrRd','Total_Confirmed'],['YlGnBu','percentage_cured'],['OrRd','Death']]
-	maps = p.map(plot_map,arguments_passed)
-	return maps
+	p.map(plot_map,arguments_passed)
+
+
+if __name__ == "scripts.main":
+	scheduler = BackgroundScheduler()
+
+	scheduler.add_job(get_data, 'interval', minutes=5)
+	scheduler.add_job(plot_bar, 'interval', minutes=6)
+	scheduler.add_job(plot_pie, 'interval', minutes=7)
+	scheduler.add_job(plot_all_maps, 'interval', minutes=9)
+
+	scheduler.start()

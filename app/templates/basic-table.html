@@ -93,6 +93,7 @@
                       </thead>
                       <tbody>
                         {% for i in range(len) %}
+                        {% if i != len-1 %}
                         <tr>
                           <td style="color:white">
                             {{objects[i]}}
@@ -108,44 +109,46 @@
                             </div>
                           </td>
                           <td style="color:white"><b>
-                            {{performance[i]}}
+                            {{performance[i]|int}}
                           </b></td>
                           <td style="color:white">
                             <b>
-                            {{cured[i]}}
+                            {{cured[i]|int}}
                             </b>
                           </td>
                           <td style="color:white">
                             <b>
-                            {{death[i]}}
+                            {{death[i]|int}}
                             </b>
                           </td>
                         </tr>
-                        {% endfor %}
+                        {% else %}
                         <tr>
                           <td style="color:white">
                             <b>
-                              Total Cases
+                              {{objects[i]}}
                             </b>
                           </td>
                           <td>
                           </td>
                           <td style="color:white">
                             <b>
-                              {{total}}
+                              {{performance[i]|int}}
                             </b>
                           </td>
                           <td style="color:white">
                             <b>
-                              {{cured[-1]}}
+                              {{cured[i]|int}}
                             </b>
                           </td>
                           <td style="color:white">
                             <b>
-                              {{death[-1]}}
+                              {{death[i]|int}}
                             </b>
                           </td>
                         </tr>
+                        {% endif %}
+                        {% endfor %}
                       </tbody>
                     </table>
                   </div>
