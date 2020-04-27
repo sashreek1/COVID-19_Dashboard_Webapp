@@ -24,7 +24,7 @@ SHORT_HEADERS = ['SNo', 'State', 'Total_Confirmed', 'Cured', 'Death']
 
 ########################## Get data from ministry of health #####################################
 def get_data():
-
+	print("Process 1")
 	df_data = pd.read_pickle("df_data.pkl")
 	response = requests.get(site).content
 	soup = BeautifulSoup(response, 'html.parser') 
@@ -96,16 +96,17 @@ def get_data():
 	################################### Plot bar chart ##################################
 
 def plot_bar():
+	print("Process 2")
 	df_data = pd.read_pickle("df_data.pkl")
 	b = figure(
-  	y_range=df_data["State"].dropna().tolist(),
+  	y_range=df_data["State"].dropna().tolist()[:-1],
   	title = '',
   	x_axis_label ='Cases',
   	plot_width=600,
   	plot_height=700,
   	tools="pan,box_select,zoom_in,zoom_out,save,reset")
-	b.hbar(y=df_data["State"].dropna().tolist(),
-    right=df_data["Total_Confirmed"].dropna().tolist(),
+	b.hbar(y=df_data["State"].dropna().tolist()[:-1],
+    right=df_data["Total_Confirmed"].dropna().tolist()[:-1],
     left=0,
     height=0.4,
     color='red',
@@ -131,10 +132,11 @@ def plot_bar():
 	 
 	############################### Plot pie chart ####################################### 
 def plot_pie():
+	print("Process 3")
 	x = {}
 	df_data = pd.read_pickle("df_data.pkl")
-	objects = df_data["State"].dropna().tolist()
-	performance = df_data["Total_Confirmed"].dropna().tolist()
+	objects = df_data["State"].dropna().tolist()[:-1]
+	performance = df_data["Total_Confirmed"].dropna().tolist()[:-1]
 	for i in range(len(objects)):
 		x[objects[i]] = performance[i]
 	data = pd.Series(x).reset_index(name='value').rename(columns={'index':'state'})
@@ -216,17 +218,44 @@ def plot_map(arguments):
 	                                'color':'#000000', 
 	                                'fillOpacity': 0.50, 
 	                                'weight': 0.1}
-	NIL = folium.features.GeoJson(
-	    merged,
-	    style_function=style_function, 
-	    control=False,
-	    highlight_function=highlight_function, 
-	    tooltip=folium.features.GeoJsonTooltip(
-	        fields=['state_name',category],
-	        aliases=['State: ','Number of cases: '],
-	        style=("background-color: white; color: #333333; font-family: arial; font-size: 12px; padding: 10px;") 
-	    )
-	)
+	
+	if category == "Total_Confirmed":
+		NIL = folium.features.GeoJson(
+		    merged,
+		    style_function=style_function, 
+		    control=False,
+		    highlight_function=highlight_function, 
+		    tooltip=folium.features.GeoJsonTooltip(
+		        fields=['state_name',category],
+		        aliases=['State: ','Number of cases: '],
+		        style=("background-color: white; color: #333333; font-family: arial; font-size: 12px; padding: 10px;") 
+		    )
+		)
+	if category == "percentage_cured":
+		NIL = folium.features.GeoJson(
+		    merged,
+		    style_function=style_function, 
+		    control=False,
+		    highlight_function=highlight_function, 
+		    tooltip=folium.features.GeoJsonTooltip(
+		        fields=['state_name',category],
+		        aliases=['State: ','Number of deaths: '],
+		        style=("background-color: white; color: #333333; font-family: arial; font-size: 12px; padding: 10px;") 
+		    )
+		)
+	if category == "Death":
+		NIL = folium.features.GeoJson(
+		    merged,
+		    style_function=style_function, 
+		    control=False,
+		    highlight_function=highlight_function, 
+		    tooltip=folium.features.GeoJsonTooltip(
+		        fields=['state_name',category, 'percentage_cured'],
+		        aliases=['State: ','Cured Cases: ','Percentage Cured'],
+		        style=("background-color: white; color: #333333; font-family: arial; font-size: 12px; padding: 10px;") 
+		    )
+		)
+
 	mymap.add_child(NIL)
 	mymap.keep_in_front(NIL)
 	folium.LayerControl().add_to(mymap)
@@ -235,12 +264,15 @@ def plot_map(arguments):
 	f = open("app/templates/"+category+".html", "w")
 	f.write(confirmed_map)
 	f.close()
+	print("Done")
 
 def plot_all_maps():
+	print("Process 4")
 	p = Pool()
 	arguments_passed = [['YlOrRd','Total_Confirmed'],['YlGnBu','percentage_cured'],['OrRd','Death']]
 	p.map(plot_map,arguments_passed)
 
+plot_all_maps()
 
 if __name__ == "scripts.main":
 	scheduler = BackgroundScheduler()
