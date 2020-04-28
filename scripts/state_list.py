@@ -1,5 +1,4 @@
 stats_edit = [
-["SNo_def","State_def","Total-Confirmed_def","Cured_def","Death_def"],
 [1, 'Andhra Pradesh', 0, 0, 0],
 [2, 'Arunanchal Pradesh',0,0,0],
 [3, 'Andaman & Nicobar Island', 0, 0,0],

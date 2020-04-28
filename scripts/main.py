@@ -25,6 +25,9 @@ SHORT_HEADERS = ['SNo', 'State', 'Total_Confirmed', 'Cured', 'Death']
 ########################## Get data from ministry of health #####################################
 def get_data():
 	print("Process 1")
+	df_1 = None
+	df_2 = None
+	df_data = None
 	df_data = pd.read_pickle("df_data.pkl")
 	response = requests.get(site).content
 	soup = BeautifulSoup(response, 'html.parser') 
@@ -76,13 +79,17 @@ def get_data():
 
 	column_names = data.pop(0)
 	df_1 = pd.DataFrame(data, columns=column_names)
+	with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
+		print(df_1)
 
-
-	column_names = state_list.stats_edit.pop(0)
+	column_names = ["SNo_def","State_def","Total-Confirmed_def","Cured_def","Death_def"]
 	df_2 = pd.DataFrame(state_list.stats_edit, columns=column_names)
-
+	with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
+		print(df_2)
 
 	df_data = pd.merge(left=df_2, right=df_1, how='left', left_on='State_def', right_on='State')
+	with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
+		print(df_data)
 
 	net_results = []
 	net_results.append(int((stats[-1][2].strip("#")).strip("*")))
@@ -179,7 +186,7 @@ def setup_map():
 	map_df = gpd.read_file(fp)
 	map_df.insert (1,"state_name", map_df["st_nm"])
 	df_data = df_data.fillna(0)
-	merged = map_df.set_index('st_nm').join(df_data.set_index('State-def'))
+	merged = map_df.set_index('st_nm').join(df_data.set_index('State_def'))
 
 	merged['percentage_cured'] = merged.apply(lambda row: round((row.Cured/row.Total_Confirmed)*100,2) if row.Total_Confirmed>0 else 0, axis = 1) 
 	x_map=merged.centroid.x.mean()
@@ -201,8 +208,8 @@ def plot_map(arguments):
 	 geo_data=merged,
 	 name='choropleth',
 	 data=merged,
-	 columns=['SNo-def',category],
-	 key_on="feature.properties.SNo-def",
+	 columns=['SNo_def',category],
+	 key_on="feature.properties.SNo_def",
 	 fill_color=colour,
 	 threshold_scale=myscale,
 	 fill_opacity=1,
@@ -272,14 +279,11 @@ def plot_all_maps():
 	arguments_passed = [['YlOrRd','Total_Confirmed'],['YlGnBu','percentage_cured'],['OrRd','Death']]
 	p.map(plot_map,arguments_passed)
 
-plot_all_maps()
+scheduler = BackgroundScheduler()
 
-if __name__ == "scripts.main":
-	scheduler = BackgroundScheduler()
+scheduler.add_job(get_data, 'interval', hours = 12, minutes=5)
+scheduler.add_job(plot_bar, 'interval', hours = 12, minutes=6)
+scheduler.add_job(plot_pie, 'interval', hours = 12, minutes=7)
+scheduler.add_job(plot_all_maps, 'interval', hours = 12, minutes=8)
 
-	scheduler.add_job(get_data, 'interval', minutes=5)
-	scheduler.add_job(plot_bar, 'interval', minutes=6)
-	scheduler.add_job(plot_pie, 'interval', minutes=7)
-	scheduler.add_job(plot_all_maps, 'interval', minutes=9)
-
-	scheduler.start()
+scheduler.start()
