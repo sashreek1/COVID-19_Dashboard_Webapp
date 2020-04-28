@@ -79,18 +79,12 @@ def get_data():
 
 	column_names = data.pop(0)
 	df_1 = pd.DataFrame(data, columns=column_names)
-	with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
-		print(df_1)
-
+	
 	column_names = ["SNo_def","State_def","Total-Confirmed_def","Cured_def","Death_def"]
 	df_2 = pd.DataFrame(state_list.stats_edit, columns=column_names)
-	with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
-		print(df_2)
-
+	
 	df_data = pd.merge(left=df_2, right=df_1, how='left', left_on='State_def', right_on='State')
-	with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
-		print(df_data)
-
+	
 	net_results = []
 	net_results.append(int((stats[-1][2].strip("#")).strip("*")))
 	net_results.append(int((stats[-1][3].strip("#")).strip("*")))
@@ -271,7 +265,6 @@ def plot_map(arguments):
 	f = open("app/templates/"+category+".html", "w")
 	f.write(confirmed_map)
 	f.close()
-	print("Done")
 
 def plot_all_maps():
 	print("Process 4")
