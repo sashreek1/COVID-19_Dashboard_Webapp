@@ -274,9 +274,9 @@ def plot_all_maps():
 
 scheduler = BackgroundScheduler()
 
-scheduler.add_job(get_data, 'interval', hours = 12, minutes=5)
-scheduler.add_job(plot_bar, 'interval', hours = 12, minutes=6)
-scheduler.add_job(plot_pie, 'interval', hours = 12, minutes=7)
-scheduler.add_job(plot_all_maps, 'interval', hours = 12, minutes=8)
+scheduler.add_job(get_data, 'interval', hours = 2, minutes=5)
+scheduler.add_job(plot_bar, 'interval', hours = 2, minutes=6)
+scheduler.add_job(plot_pie, 'interval', hours = 2, minutes=7)
+scheduler.add_job(plot_all_maps, 'interval', hours = 2, minutes=8)
 
 scheduler.start()

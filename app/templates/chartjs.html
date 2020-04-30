@@ -11,6 +11,7 @@
   <!-- endinject -->
   <!-- inject:css -->
   <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="stylesheet" href="/static/css/themify-icons.css">
   <!-- endinject -->
   <link rel="shortcut icon" href="/static/image/favicon.png" />
   <script src="https://cdn.bokeh.org/bokeh/release/bokeh-2.0.1.min.js"
@@ -37,9 +38,11 @@
       </div>
       <div class="navbar-menu-wrapper d-flex align-items-center">
         <H1><CENTER>The COVID-19 Daily</CENTER></H1>
-        <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
+        <ul class="navbar-nav navbar-nav-right">
+          <button class="navbar-toggler navbar-toggler align-self-center" type="button" data-toggle="minimize">
           <span class="ti-view-list"></span>
         </button>
+        </ul>
       </div>
     </nav>
     <!-- partial -->
@@ -47,6 +50,7 @@
       <!-- partial:../../partials/_sidebar.html -->
       <nav class="sidebar sidebar-offcanvas" id="sidebar">
         <ul class="nav">
+          
           <li class="nav-item">
             <a class="nav-link" href="{{ url_for('charts') }}">
               <i class="ti-pie-chart menu-icon"></i>
